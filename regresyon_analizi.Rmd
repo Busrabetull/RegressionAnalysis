@@ -1,0 +1,99 @@
+---
+title: "CorrelationRegression_Analysis"
+author: "Büşra Betül Şimşek"
+date: "2023-11-04"
+output: html_document
+---
+
+lapply(): Belirtilen bir fonksiyonu, belirtilen bir liste veya vektörün her bir elemanına uygular. Sonuçları liste olarak döndürür.
+
+sapply(): lapply dan farklı olarak sonuçları vektör olarka döndürür.
+
+```{r}
+lapply(mtcars,mean)
+```
+mutate(): Veri çerçevelerinde ya da veri tablolarında yeni değişkenler oluşturmak veya mevcut değişkenleri değiştirmek iiçin kullanırız.
+
+*gapminder farklı ülkelerin çeşitli demografik ve ekonomik göstergelerini içeren bir veri setidir.
+
+*pipe operatörü(%>%): verileri işlerken; bir işlevin çıktısını bir sonraki işleve girdi olarak sağlamak için kullanılır. Okunabilirlik açısından kolaylık sağlar.
+
+```{r}
+library(gapminder)
+library(dplyr)
+
+gapminder <- gapminder %>% mutate(year1950 = year - 1950)
+gapminder
+```
+Yukarıdaki kod şunu ifade eder: Her bir gözlemin year sütunudaki yıllardan 1950 yi çıkararak yeni bir year1950 sütunu oluşturduk. Verilerin okunmasını daha da kolaylasştırmak için.
+
+```{r}
+select(gapminder, year1950)
+```
+select() fonksiyonunu kullanarak sadece istediğimiz sütunları seçebilir ve görüntüleyebiliriz.
+
+```{r}
+gapminder_split <- split(gapminder, gapminder$continent)
+gapminder_split
+```
+Bu kod veri çerçevesini continent sütununa göre gruplara böler.Her kıta için ayrı bir grup oluşturur.
+
+```{r}
+
+model1 <- lapply(gapminder_split, function(x) {
+  lm(lifeExp ~ year1950, data = x)
+})
+
+```
+
+Bu kod; gapminder_split listesinin her bir ögesi yani (x), (birazdan anlayacaksınız) lm fonksiyonuna uygulanacak ve her bir kıta veya bölge için ayrı bir lineer regresyon modeli oluşturulacak.
+
+*function(x): anonim bir fonksiyon tanımlar, x yerine başka değerler de kullanabilirz. x her bir ögeyi temsil eden değişken adıdır, burada kıta veya bölge adlarını temsil etmektedir. Aşağıda örnek kullanımlarını görebilirsiniz:
+
+```{r}
+
+my_list <- list(1, 2, 3, 4, 5)
+lapply(my_list, function(x) {
+  x * 2  
+})
+ #x burada her bir liste ögesini temsil eder ve ögeleri iki ile çarpar.
+```
+
+Aşağıda ise x ; her bir sütunu temsil eder ve sütunların toplamını hesaplar.
+```{r}
+
+my_matrix <- matrix(1:9, nrow = 3)
+apply(my_matrix, 2, function(x) {
+  sum(x)  
+})
+
+```
+
+*Basit Regresyon Modeli*
+
+y = ax + b + e
+
+a: regresyon sabiti(regresyon doğrusunun y eksenini kestiği nokta)
+
+b: regresyon katsayısı (x değişkeninde 1 birimlik değişim olduğu zaman bunun y değişkeninde karşılığı)
+
+e: hata
+
+y: bağımlı değişken
+
+x: bağımsız değişken
+
+R kare değeri: Bir lineer regresyon modelinin ne kadar iyi olduğunu gösteren istatiksel ölçüt. 1 e yaklaştıkça tahminlerin gözlemlenen değere o kadar yakın olduğunu anlarızi R square değeri 1 den fazla olamaz.
+
+```{r}
+sapply(model1, function(x) summary(x)$r.squared)
+```
+Bu değerlere bakarak en kötü modelleme değerinin Afrikaya ait olduğunu görüyoruz.
+Bununla beraber, Okyanusya kıtasındaki yaşam beklentisi verilerinin 1950'den sonraki yıllarla ilişkisinin diğer kıtalara göre çok yüksek bir yakınlık gösterdiğni anlayabiliriz. 
+
+
+
+
+
+
+
